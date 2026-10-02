@@ -12,20 +12,29 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Extract Android project
+        shell: bash
         run: |
-          mkdir project
-          unzip -q tovary_dlya_domu_source.zip -d project
+          mkdir -p package project
+          ZIP=$(find . -maxdepth 1 -type f -name "*.zip" | head -n 1)
+          echo "Found ZIP: $ZIP"
+          unzip -q "$ZIP" -d package
+          SOURCE=$(find package -type f -name "tovary_dlya_domu_source.zip" | head -n 1)
+          if [ -z "$SOURCE" ]; then
+            SOURCE=$(find package -type f -name "*.zip" | head -n 1)
+          fi
+          echo "Found source: $SOURCE"
+          unzip -q "$SOURCE" -d project
 
       - name: Set up JDK
         uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: '17'
+          java-version: "17"
 
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
         with:
-          gradle-version: '8.7'
+          gradle-version: "8.7"
 
       - name: Build APK
         working-directory: project
